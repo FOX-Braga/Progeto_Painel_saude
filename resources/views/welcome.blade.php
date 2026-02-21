@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Curumin - Saúde Indígena</title>
+    <title>Dashboard - Curumin CRM</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,13 +34,13 @@
 
         <ul class="nav-links">
             <li class="nav-item">
-                <a href="#" class="nav-link active">
+                <a href="{{ route('dashboard') }}" class="nav-link active">
                     <i class="fa-solid fa-house"></i>
                     Visão Geral
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('communities.index') }}" class="nav-link">
                     <i class="fa-solid fa-users"></i>
                     Comunidades
                 </a>
@@ -56,9 +58,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa-solid fa-gear"></i>
-                    Configurações
+                <a href="{{ route('profile') }}" class="nav-link">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    Meu Perfil
                 </a>
             </li>
             <li class="nav-item" style="margin-top: auto;">
@@ -79,10 +81,18 @@
         <header class="top-header animate-fade">
             <div class="header-title">Olá, Profissional de Saúde 👋</div>
             <div class="user-profile">
-                <span style="font-weight: 500; color: var(--text-muted);">Administrador</span>
-                <div class="avatar">
-                    <i class="fa-solid fa-user-doctor"></i>
-                </div>
+                <a href="{{ route('profile') }}"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 16px;">
+                    <span style="font-weight: 500; color: var(--text-muted);">{{ Auth::user()->name }}</span>
+                    <div class="avatar" style="overflow: hidden;">
+                        @if(Auth::user()->profile_photo_path)
+                            <img src="{{ Storage::url(Auth::user()->profile_photo_path) }}" alt="Avatar"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <i class="fa-solid fa-user-doctor"></i>
+                        @endif
+                    </div>
+                </a>
             </div>
         </header>
 

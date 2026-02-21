@@ -1,59 +1,69 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Curumin CRM 🌱
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+O **Curumin CRM** é um sistema moderno de gestão de relacionamento e registros de saúde focado especificamente no atendimento e acompanhamento de populações de aldeias e comunidades indígenas. 
 
-## About Laravel
+Este projeto foi construído utilizando o framwework **Laravel** e banco de dados **PostgreSQL**, além de focar em uma experiência de usuário (UX) premium baseada em Glassmorphism, CSS nativo super polido, e mapas geolocalizados automáticos.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🎯 Objetivo do Projeto
+O sistema tem como meta fornecer aos profissionais de saúde, médicos e gestores uma plataforma rápida, fluída e visualmente rica para cadastrar e acompanhar:
+*   As **Comunidades e Aldeias**, distribuindo as informações demográficas no mapa para calcular o raio de ação e volume de pacientes.
+*   As parcelas infantis da população (1 a 18 anos), ajudando no controle e gestão preventiva médica e profilática infantil.
+*   Futuros registros numéricos atrelados a tabelas relacionais em banco SQL focado na robustez.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Funcionalidades Atuais
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+*   **🛡️ Autenticação Fechada:** Sistema restrito apenas por credencias previamente registradas em banco (Login Médico via `adimin` : `natallya`), protegendo informações sensíveis por _Middleware_.
+*   **🧑‍⚕️ Perfis de Profissionais:** Upload dinâmico local de imagem de perfil, armazenamento via `storage/public/profile-photos`, associando e ilustrando globalmente a foto do médico que está logado.
+*   **📍 Gestor Demográfico Georeferenciado (Comunidades):**
+    *   Leitura de Totais Populacionais entre jovens (Separados por faixas: 1-5 anos, 5-10 anos e 10-18 anos).
+    *   **Dashboard Leaflet (Mapa de Pins):** Identificação exata da Aldeia atrelado às suas coordenadas mapeadas.
+    *   **Geocodificação Automática OpenStreetMap (Nominatim API):** Se as latitudes e longitudes de uma comunidade forem ignoradas durante o cadastro mas ela possuir o nome e o endereço detalhados inseridos, a API converte o endereço em coordenadas e salva automaticamente.
+    *   _CRUD (Create, Read, Update, Delete)_ completo e validado direto pela Interface de Comunidades.
+*   **💅 UI/UX Premium:** Cores extraídas da natureza (_Verde Bandeira, Verde Erva, Tons Terrosos e Laranjas_), Transições Animadas `fadeIn` padrão, Bordas macias, e uso de iconografia global limpa _(Font-Awesome 6.4)_.
 
-## Learning Laravel
+## 🛠️ Tecnologias e Dependências
+*   [PHP 8.2+](https://www.php.net/)
+*   [Laravel 12+](https://laravel.com/)
+*   [PostgreSQL](https://www.postgresql.org/)
+*   [Leaflet.JS](https://leafletjs.com/) (Mapas)
+*   Vanilla CSS (Global Stylesheet Modularizado `public/css/style.css`)
+*   Font Awesome + Google Fonts (Inter)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚀 Como instalar e rodar (Para Desenvolvedores)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**1. Clone o repositório ou acesse a pasta raiz**
+```bash
+cd crm_kid
+```
 
-## Laravel Sponsors
+**2. Instalar as dependências do Laravel**
+```bash
+composer install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**3. Configure o Banco de Dados Postgre**
+Configure dentro do `.env`:
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=crm_kid
+DB_USERNAME=postgres
+DB_PASSWORD=sua_senha
+```
 
-### Premium Partners
+**4. Execute as Migrações e Seeds (Alimentador do Banco)**
+```bash
+php artisan migrate --seed
+php artisan storage:link
+```
+_(A seed gerará o usuário de login obrigatório nativamente, bem como comunidades modelo)._
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+**5. Inicie o Servidor Interno**
+```bash
+php artisan serve
+```
+Acesse `http://localhost:8000` em seu navegador padrão.
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+Feito com dedicação para gerenciar a saúde de quem preserva as florestas brasileiras. 💚
