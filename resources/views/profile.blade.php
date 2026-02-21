@@ -189,6 +189,11 @@
                 </div>
             </div>
         </section>
+
+        <footer
+            style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
+            &copy; {{ date('Y') }} Curumin CRM - Saúde Indígena. Todos os direitos reservados.
+        </footer>
     </main>
 </body>
 
