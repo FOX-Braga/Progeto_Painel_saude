@@ -15,7 +15,17 @@ use App\Http\Controllers\MedicalRecordController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
-        return view('welcome');
+        $todayRecords = \App\Models\MedicalRecord::with(['child.community'])
+            ->whereDate('record_date', \Carbon\Carbon::today())
+            ->latest('record_date')
+            ->get();
+
+        $childrenCount = \App\Models\Child::count();
+        $communitiesCount = \App\Models\Community::count();
+        // Placeholder for vaccines
+        $pendingVaccinesCount = 28;
+
+        return view('welcome', compact('todayRecords', 'childrenCount', 'communitiesCount', 'pendingVaccinesCount'));
     })->name('dashboard');
 
     Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');

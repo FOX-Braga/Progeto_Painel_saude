@@ -37,6 +37,44 @@ class ChildController extends Controller
     public function show(Child $child)
     {
         $child->load(['community', 'medical_records.doctor']); // eager load relation
-        return view('children.show', compact('child'));
+
+        // Prepare data for the health charts
+        $chartDates = [];
+        $chartWeights = [];
+        $chartHeights = [];
+        $chartIMCs = [];
+        $chartFcs = [];
+        $chartTemps = [];
+        $chartHemoglobins = [];
+
+        $recordsAsc = $child->medical_records->sortBy('record_date');
+        foreach ($recordsAsc as $record) {
+            $vitals = $record->data['common']['vitals'] ?? [];
+            $age07 = $record->data['age_0_7'] ?? [];
+            $hasData = (!empty($vitals['weight']) || !empty($vitals['height']) || !empty($vitals['imc']) || !empty($vitals['heart_rate']) || !empty($vitals['temperature']) || !empty($age07['hemoglobin']));
+
+            if ($hasData) {
+                $chartDates[] = \Carbon\Carbon::parse($record->record_date)->format('d/m');
+                // Replace comma with dot if necessary and parse to float
+                $chartWeights[] = !empty($vitals['weight']) ? (float) str_replace(',', '.', $vitals['weight']) : null;
+                $chartHeights[] = !empty($vitals['height']) ? (float) str_replace(',', '.', $vitals['height']) : null;
+                $chartIMCs[] = !empty($vitals['imc']) ? (float) str_replace(',', '.', $vitals['imc']) : null;
+                $chartFcs[] = !empty($vitals['heart_rate']) ? (float) str_replace(',', '.', $vitals['heart_rate']) : null;
+                $chartTemps[] = !empty($vitals['temperature']) ? (float) str_replace(',', '.', $vitals['temperature']) : null;
+                $chartHemoglobins[] = !empty($age07['hemoglobin']) ? (float) str_replace(',', '.', $age07['hemoglobin']) : null;
+            }
+        }
+
+        $chartData = [
+            'labels' => $chartDates,
+            'weights' => $chartWeights,
+            'heights' => $chartHeights,
+            'imcs' => $chartIMCs,
+            'fcs' => $chartFcs,
+            'temps' => $chartTemps,
+            'hemoglobins' => $chartHemoglobins,
+        ];
+
+        return view('children.show', compact('child', 'chartData'));
     }
 }

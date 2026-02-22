@@ -208,7 +208,7 @@
                                                 <span style="color: var(--text-muted);">N/A</span>
                                             @endif
                                         </td>
-                                        <td><a href="#" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver Ficha</a></td>
+                                        <td><a href="{{ route('children.show', $child->id) }}" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver Ficha</a></td>
                                     </tr>
                                 @endforeach
                             </tbody>

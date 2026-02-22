@@ -14,6 +14,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         .page-header {
@@ -281,8 +282,43 @@
             </div>
 
             <div style="display: flex; gap: 30px;" class="animate-fade" style="animation-delay: 0.1s;">
-                <!-- COLUNA ESQUERDA: LINHA DO TEMPO DAS CONSULTAS -->
+                <!-- COLUNA ESQUERDA: LINHA DO TEMPO E GRÁFICOS -->
                 <div style="flex: 2;">
+                    <!-- GRÁFICOS DE SAÚDE -->
+                    @if(count(array_filter($chartData['weights'])) > 0 || count(array_filter($chartData['heights'])) > 0 || count(array_filter($chartData['imcs'])) > 0 || count(array_filter($chartData['temps'])) > 0 || count(array_filter($chartData['hemoglobins'])) > 0)
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-main); font-size: 1.3rem;">
+                            <i class="fa-solid fa-chart-pie"></i> Painel de Saúde e Evolução
+                        </h3>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- Crescimento (Peso/Altura/IMC) -->
+                            <div style="background: var(--card-bg); border-radius: var(--border-radius-lg); padding: 20px; box-shadow: var(--shadow-sm);">
+                                <h4 style="margin-bottom: 15px; font-size: 1rem; color: var(--text-main);"><i class="fa-solid fa-weight-scale" style="color: var(--primary-color);"></i> Crescimento e IMC</h4>
+                                <div style="width: 100%; height: 220px;">
+                                    <canvas id="growthChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Sinais Vitais (Temp/FC) -->
+                            <div style="background: var(--card-bg); border-radius: var(--border-radius-lg); padding: 20px; box-shadow: var(--shadow-sm);">
+                                <h4 style="margin-bottom: 15px; font-size: 1rem; color: var(--text-main);"><i class="fa-solid fa-heart-pulse" style="color: var(--accent-color);"></i> Sinais Vitais</h4>
+                                <div style="width: 100%; height: 220px;">
+                                    <canvas id="vitalsChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Exames / Laboratorial (Hemoglobina) -->
+                            <div style="background: var(--card-bg); border-radius: var(--border-radius-lg); padding: 20px; box-shadow: var(--shadow-sm); grid-column: span 2;">
+                                <h4 style="margin-bottom: 15px; font-size: 1rem; color: var(--text-main);"><i class="fa-solid fa-vial" style="color: var(--secondary-color);"></i> Evolução Laboratorial (Hemoglobina)</h4>
+                                <div style="width: 100%; height: 200px;">
+                                    <canvas id="labChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <h3 style="margin-bottom: 24px; color: var(--text-main); font-size: 1.3rem;"><i
                             class="fa-solid fa-clock-rotate-left"></i> Histórico de Consultas</h3>
 
@@ -400,6 +436,8 @@
                             <div style="font-weight: 500;">{{ $child->address ?? 'Não informado' }}</div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
             </div>
 
@@ -410,6 +448,132 @@
             &copy; {{ date('Y') }} Curumin RES - Saúde Indígena. Todos os direitos reservados.
         </footer>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = @json($chartData);
+            
+            // Common Options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 12, family: "'Inter', sans-serif" }, usePointStyle: true } }
+                },
+                scales: { x: { grid: { display: false } } }
+            };
+
+            // 1. Growth Chart (Weight & IMC)
+            const growthCtx = document.getElementById('growthChart');
+            if (growthCtx && (chartData.weights.some(x => x !== null) || chartData.imcs.some(x => x !== null))) {
+                new Chart(growthCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [
+                            {
+                                label: 'Peso (kg)',
+                                data: chartData.weights,
+                                borderColor: '#48BB78',
+                                backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                                borderWidth: 2, tension: 0.3, fill: true, spanGaps: true,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'IMC',
+                                data: chartData.imcs,
+                                borderColor: '#3182CE',
+                                backgroundColor: 'rgba(49, 130, 206, 0.1)',
+                                borderWidth: 2, tension: 0.3, spanGaps: true, borderDash: [5, 5],
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Peso (kg)' } },
+                            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'IMC' }, grid: { drawOnChartArea: false } }
+                        }
+                    }
+                });
+            }
+
+            // 2. Vitals Chart (Temp & Heart Rate)
+            const vitalsCtx = document.getElementById('vitalsChart');
+            if (vitalsCtx && (chartData.temps.some(x => x !== null) || chartData.fcs.some(x => x !== null))) {
+                new Chart(vitalsCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [
+                            {
+                                label: 'Temp (°C)',
+                                data: chartData.temps,
+                                borderColor: '#E53E3E',
+                                backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                                borderWidth: 2, tension: 0.3, fill: true, spanGaps: true,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'FC (bpm)',
+                                data: chartData.fcs,
+                                borderColor: '#DD6B20',
+                                backgroundColor: 'transparent',
+                                borderWidth: 2, tension: 0.3, spanGaps: true,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Temperatura' }, min: 35, max: 41 },
+                            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'FC' }, grid: { drawOnChartArea: false } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Lab Chart (Hemoglobin)
+            const labCtx = document.getElementById('labChart');
+            if (labCtx && chartData.hemoglobins.some(x => x !== null)) {
+                new Chart(labCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [
+                            {
+                                label: 'Hemoglobina (g/dL)',
+                                data: chartData.hemoglobins,
+                                backgroundColor: '#805AD5',
+                                borderRadius: 4,
+                            },
+                            // Threshold line reference (Optional visual aid)
+                            {
+                                label: 'Mínimo Ideal (11 g/dL)',
+                                data: chartData.labels.map(() => 11),
+                                type: 'line',
+                                borderColor: '#E53E3E',
+                                borderDash: [5, 5],
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            y: { beginAtZero: true, max: 18 }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

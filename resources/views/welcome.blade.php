@@ -105,7 +105,7 @@
                     </div>
                     <div class="stat-info">
                         <h4>Crianças Atendidas</h4>
-                        <div class="value">142</div>
+                        <div class="value">{{ $childrenCount }}</div>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                     </div>
                     <div class="stat-info">
                         <h4>Comunidades</h4>
-                        <div class="value">5</div>
+                        <div class="value">{{ $communitiesCount }}</div>
                     </div>
                 </div>
 
@@ -125,17 +125,18 @@
                     </div>
                     <div class="stat-info">
                         <h4>Vacinas Pendentes</h4>
-                        <div class="value">28</div>
+                        <div class="value">{{ $pendingVaccinesCount }}</div>
                     </div>
                 </div>
             </div>
 
             <div class="glass-panel animate-fade" style="animation-delay: 0.2s;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h3>Atendimentos Recentes</h3>
-                    <button class="btn btn-primary">
+                    <h3>Atendimentos Recentes (Hoje)</h3>
+                    <a href="{{ route('medical_records.create') }}" class="btn btn-primary"
+                        style="text-decoration: none;">
                         <i class="fa-solid fa-plus"></i> Novo Registro
-                    </button>
+                    </a>
                 </div>
 
                 <table style="width: 100%; text-align: left; border-collapse: collapse;">
@@ -149,28 +150,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                            <td style="padding: 16px; font-weight: 500;">Tainá Yawalapiti</td>
-                            <td style="padding: 16px; color: var(--text-muted);">Alto Xingu</td>
-                            <td style="padding: 16px; color: var(--text-muted);">Hoje, 09:30</td>
-                            <td style="padding: 16px;"><span
-                                    style="background: rgba(72,187,120,0.2); color: var(--primary-color); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Adequado</span>
-                            </td>
-                            <td style="padding: 16px;"><a href="#"
-                                    style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver
-                                    Ficha</a></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                            <td style="padding: 16px; font-weight: 500;">Cauã Guajajara</td>
-                            <td style="padding: 16px; color: var(--text-muted);">Arariboia</td>
-                            <td style="padding: 16px; color: var(--text-muted);">Ontem, 14:15</td>
-                            <td style="padding: 16px;"><span
-                                    style="background: rgba(214,158,46,0.2); color: var(--secondary-color); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Atenção</span>
-                            </td>
-                            <td style="padding: 16px;"><a href="#"
-                                    style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver
-                                    Ficha</a></td>
-                        </tr>
+                        @forelse($todayRecords as $record)
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td style="padding: 16px; font-weight: 500;">
+                                    {{ $record->child->name ?? 'Paciente Removido' }}</td>
+                                <td style="padding: 16px; color: var(--text-muted);">
+                                    {{ $record->child->community->name ?? 'Sem Comunidade' }}</td>
+                                <td style="padding: 16px; color: var(--text-muted);">Hoje,
+                                    {{ \Carbon\Carbon::parse($record->created_at)->format('H:i') }}</td>
+                                <td style="padding: 16px;">
+                                    @php
+                                        $status = $record->child->nutritional_status ?? 'Adequado';
+                                        $bgColor = $status == 'Adequado' ? 'rgba(72,187,120,0.2)' : 'rgba(214,158,46,0.2)';
+                                        $textColor = $status == 'Adequado' ? 'var(--primary-color)' : 'var(--secondary-color)';
+                                    @endphp
+                                    <span
+                                        style="background: {{ $bgColor }}; color: {{ $textColor }}; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">{{ $status }}</span>
+                                </td>
+                                <td style="padding: 16px;">
+                                    @if($record->child)
+                                        <a href="{{ route('children.show', $record->child->id) }}"
+                                            style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver
+                                            Ficha</a>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" style="padding: 16px; text-align: center; color: var(--text-muted);">
+                                    Nenhum atendimento registrado hoje.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
