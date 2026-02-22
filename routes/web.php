@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');
     Route::get('/communities/{community}/edit', [CommunityController::class, 'edit'])->name('communities.edit');
     Route::put('/communities/{community}', [CommunityController::class, 'update'])->name('communities.update');
+    Route::get('/communities/{community}', [CommunityController::class, 'show'])->name('communities.show');
 
     Route::get('/children', [ChildController::class, 'index'])->name('children.index');
     Route::get('/children/create', [ChildController::class, 'create'])->name('children.create');
@@ -43,4 +44,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');
+
+    Route::put('/child-vaccines/{childVaccine}', [\App\Http\Controllers\ChildVaccineController::class, 'update'])->name('child_vaccines.update');
 });

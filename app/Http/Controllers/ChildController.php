@@ -11,7 +11,7 @@ class ChildController extends Controller
 {
     public function index()
     {
-        $communities = Community::with('children')->get();
+        $communities = Community::with(['children.medical_records'])->get();
         return view('children.index', compact('communities'));
     }
 
@@ -36,7 +36,7 @@ class ChildController extends Controller
 
     public function show(Child $child)
     {
-        $child->load(['community', 'medical_records.doctor']); // eager load relation
+        $child->load(['community', 'medical_records.doctor', 'child_vaccines.vaccine']); // eager load relation
 
         // Prepare data for the health charts
         $chartDates = [];

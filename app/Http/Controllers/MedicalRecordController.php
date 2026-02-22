@@ -71,6 +71,12 @@ class MedicalRecordController extends Controller
         return redirect()->route('children.show', $childId)->with('success', 'Paciente e Prontuário/Evolução registrados com sucesso!');
     }
 
+    public function show(MedicalRecord $medicalRecord)
+    {
+        $medicalRecord->load(['child.community', 'doctor']);
+        return view('medical_records.show', compact('medicalRecord'));
+    }
+
     // API endpoint for dynamic dropdown
     public function getChildrenByCommunity($communityId)
     {

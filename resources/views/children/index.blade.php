@@ -5,8 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Crianças por Comunidade - Curumin RES</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
-    
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -53,17 +54,29 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
-        .status-adequado { background: rgba(72,187,120,0.2); color: var(--primary-color); }
-        .status-atencao { background: rgba(214,158,46,0.2); color: var(--secondary-color); }
-        .status-risco { background: rgba(229,62,62,0.2); color: var(--accent-color); }
+
+        .status-adequado {
+            background: rgba(72, 187, 120, 0.2);
+            color: var(--primary-color);
+        }
+
+        .status-atencao {
+            background: rgba(214, 158, 46, 0.2);
+            color: var(--secondary-color);
+        }
+
+        .status-risco {
+            background: rgba(229, 62, 62, 0.2);
+            color: var(--accent-color);
+        }
 
         .community-section {
             background: white;
             border-radius: var(--border-radius-lg);
             padding: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .community-title {
@@ -73,7 +86,7 @@
             font-weight: 600;
             color: var(--primary-color);
             margin-bottom: 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             padding-bottom: 12px;
         }
 
@@ -94,48 +107,7 @@
 </head>
 
 <body>
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
-            Curumin RES
-        </div>
-        <ul class="nav-links">
-            <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link">
-                    <i class="fa-solid fa-house"></i> Visão Geral
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('communities.index') }}" class="nav-link">
-                    <i class="fa-solid fa-users"></i> Comunidades
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('children.index') }}" class="nav-link active">
-                    <i class="fa-solid fa-child"></i> Crianças
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('medical_records.index') }}" class="nav-link">
-                    <i class="fa-solid fa-notes-medical"></i> Prontuários
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('profile') }}" class="nav-link">
-                    <i class="fa-solid fa-user-doctor"></i> Meu Perfil
-                </a>
-            </li>
-            <li class="nav-item" style="margin-top: auto;">
-                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="nav-link"
-                        style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left; color: var(--accent-color);">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </aside>
+    @include('components.sidebar')
 
     <main class="main-wrapper">
         <header class="top-header">
@@ -192,15 +164,24 @@
                                 @foreach($community->children as $child)
                                     <tr>
                                         <td style="font-weight: 500;">{{ $child->name }}</td>
-                                        <td style="color: var(--text-muted);">{{ \Carbon\Carbon::parse($child->birth_date)->format('d/m/Y') }}</td>
+                                        <td style="color: var(--text-muted);">
+                                            {{ \Carbon\Carbon::parse($child->birth_date)->format('d/m/Y') }}</td>
                                         <td style="color: var(--text-muted);">{{ $child->gender }}</td>
-                                        <td style="color: var(--text-muted);">{{ $child->last_visit_date ? \Carbon\Carbon::parse($child->last_visit_date)->format('d/m/Y') : 'N/A' }}</td>
+                                        <td style="color: var(--text-muted);">
+                                            @php
+                                                $lastRecordDate = $child->medical_records->max('record_date');
+                                            @endphp
+                                            {{ $lastRecordDate ? \Carbon\Carbon::parse($lastRecordDate)->format('d/m/Y') : 'N/A' }}
+                                        </td>
                                         <td>
                                             @php
                                                 $statusClass = 'status-adequado';
-                                                if(strtolower($child->nutritional_status) == 'atenção') $statusClass = 'status-atencao';
-                                                if(strtolower($child->nutritional_status) == 'risco') $statusClass = 'status-risco';
-                                                if(!$child->nutritional_status) $statusClass = '';
+                                                if (strtolower($child->nutritional_status) == 'atenção')
+                                                    $statusClass = 'status-atencao';
+                                                if (strtolower($child->nutritional_status) == 'risco')
+                                                    $statusClass = 'status-risco';
+                                                if (!$child->nutritional_status)
+                                                    $statusClass = '';
                                             @endphp
                                             @if($child->nutritional_status)
                                                 <span class="badge-status {{ $statusClass }}">{{ $child->nutritional_status }}</span>
@@ -208,7 +189,9 @@
                                                 <span style="color: var(--text-muted);">N/A</span>
                                             @endif
                                         </td>
-                                        <td><a href="{{ route('children.show', $child->id) }}" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver Ficha</a></td>
+                                        <td><a href="{{ route('children.show', $child->id) }}"
+                                                style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Ver
+                                                Ficha</a></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -219,7 +202,8 @@
 
         </section>
 
-        <footer style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
+        <footer
+            style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
             &copy; {{ date('Y') }} Curumin RES - Saúde Indígena. Todos os direitos reservados.
         </footer>
     </main>

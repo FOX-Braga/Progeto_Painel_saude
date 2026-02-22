@@ -92,6 +92,7 @@ class CommunityController extends Controller
             'population_10_to_18' => 'required|integer|min:0',
         ]);
 
+        // ... validation logic omitted ...
         if (empty($validated['latitude']) || empty($validated['longitude'])) {
             if (!empty($validated['address'])) {
                 $response = \Illuminate\Support\Facades\Http::withHeaders([
@@ -117,5 +118,103 @@ class CommunityController extends Controller
         $community->update($validated);
 
         return redirect()->route('communities.index')->with('success', 'Comunidade atualizada com sucesso!');
+    }
+
+    public function show(Community $community)
+    {
+        $community->load(['children.medical_records']);
+
+        // Data Aggregation
+        $stats = [
+            'nutrition' => [
+                'Adequado' => 0,
+                'Atenção' => 0,
+                'Risco' => 0
+            ],
+            'anemia' => [
+                'Normal' => 0,
+                'Baixa (Anemia)' => 0
+            ],
+            'vaccines' => [
+                'Completa' => 0,
+                'Pendente/Atrasada' => 0
+            ],
+            'respiratory' => [],
+            'ages' => [],
+        ];
+
+        foreach ($community->children as $child) {
+            // Idade
+            if ($child->birth_date) {
+                $age = \Carbon\Carbon::parse($child->birth_date)->age;
+                if (!isset($stats['ages'][$age])) {
+                    $stats['ages'][$age] = 0;
+                }
+                $stats['ages'][$age]++;
+            }
+
+            // Nutrição
+            $statusNutri = ucfirst(strtolower($child->nutritional_status ?? 'Adequado'));
+            if ($statusNutri == 'Atencao' || $statusNutri == 'Atenção')
+                $statusNutri = 'Atenção';
+
+            if (isset($stats['nutrition'][$statusNutri])) {
+                $stats['nutrition'][$statusNutri]++;
+            }
+
+            // Pegar último prontuário para Anemia e Vacinas
+            $latestRecord = $child->medical_records->sortByDesc('record_date')->first();
+            if ($latestRecord) {
+                $data = $latestRecord->data ?? [];
+
+                // Anemia
+                $hemo = $data['age_0_7']['hemoglobin'] ?? null;
+                if ($hemo) {
+                    $hemoVal = (float) str_replace(',', '.', $hemo);
+                    if ($hemoVal < 11.0) {
+                        $stats['anemia']['Baixa (Anemia)']++;
+                    } else {
+                        $stats['anemia']['Normal']++;
+                    }
+                }
+
+                // Vacinas
+                $vaxNotes = $data['age_0_7']['vaccination_notes'] ?? '';
+                $statusVax = $data['pediatric']['vaccines']['status'] ?? '';
+
+                if (stripos($vaxNotes, 'pendente') !== false || stripos($vaxNotes, 'atraso') !== false || stripos($statusVax, 'pendente') !== false || stripos($statusVax, 'incompleto') !== false) {
+                    $stats['vaccines']['Pendente/Atrasada']++;
+                } else {
+                    // Assume completa if not explicitly pending
+                    $stats['vaccines']['Completa']++;
+                }
+            }
+
+            // Histórico Respiratório (todos os prontuários)
+            foreach ($child->medical_records as $rec) {
+                $reason = strtolower($rec->data['common']['history']['visit_reason'] ?? '');
+                $diag = strtolower($rec->data['common']['medical_action']['diagnosis'] ?? '');
+
+                // Simple keyword matching for respiratory issues in the seeded data
+                if (str_contains($reason, 'respirat') || str_contains($diag, 'pneumonia') || str_contains($diag, 'asma') || str_contains($reason, 'tosse') || str_contains($reason, 'febre')) {
+                    $month = \Carbon\Carbon::parse($rec->record_date)->format('m/Y');
+                    if (!isset($stats['respiratory'][$month])) {
+                        $stats['respiratory'][$month] = 0;
+                    }
+                    $stats['respiratory'][$month]++;
+                }
+            }
+        }
+
+        // Sort respiratory data chronologically
+        uksort($stats['respiratory'], function ($a, $b) {
+            $dateA = \Carbon\Carbon::createFromFormat('m/Y', $a);
+            $dateB = \Carbon\Carbon::createFromFormat('m/Y', $b);
+            return $dateA->greaterThan($dateB) ? 1 : -1;
+        });
+
+        ksort($stats['ages']);
+
+        return view('communities.show', compact('community', 'stats'));
     }
 }

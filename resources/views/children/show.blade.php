@@ -194,31 +194,7 @@
 </head>
 
 <body>
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
-            Curumin RES
-        </div>
-        <ul class="nav-links">
-            <li class="nav-item"><a href="{{ route('dashboard') }}" class="nav-link"><i class="fa-solid fa-house"></i>
-                    Geral</a></li>
-            <li class="nav-item"><a href="{{ route('communities.index') }}" class="nav-link"><i
-                        class="fa-solid fa-users"></i> Comunidades</a></li>
-            <li class="nav-item"><a href="{{ route('children.index') }}" class="nav-link active"><i
-                        class="fa-solid fa-notes-medical"></i> Prontuários (Lista)</a></li>
-            <li class="nav-item"><a href="{{ route('profile') }}" class="nav-link"><i
-                        class="fa-solid fa-user-doctor"></i> Meu Perfil</a></li>
-            <li class="nav-item" style="margin-top: auto;">
-                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="nav-link"
-                        style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left; color: var(--accent-color);">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </aside>
+    @include('components.sidebar')
 
     <main class="main-wrapper">
         <header class="top-header">
@@ -319,8 +295,72 @@
                     </div>
                     @endif
 
-                    <h3 style="margin-bottom: 24px; color: var(--text-main); font-size: 1.3rem;"><i
-                            class="fa-solid fa-clock-rotate-left"></i> Histórico de Consultas</h3>
+                    <!-- CARTEIRINHA DE VACINAÇÃO DIGITAL -->
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--text-main); font-size: 1.3rem;">
+                            <i class="fa-solid fa-syringe" style="color: var(--primary-color);"></i> Carteirinha de Vacinação Digital
+                        </h3>
+                        <div style="background: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: var(--shadow-sm); overflow-x: auto;">
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; min-width: 600px;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 12px; border-bottom: 2px solid #edf2f7; color: var(--text-muted);">Vacina</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #edf2f7; color: var(--text-muted);">Dose</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #edf2f7; color: var(--text-muted);">Data Prevista</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #edf2f7; color: var(--text-muted);">Status</th>
+                                        <th style="padding: 12px; border-bottom: 2px solid #edf2f7; color: var(--text-muted); text-align: right;">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($child->child_vaccines->sortBy('due_date') as $cv)
+                                        @php
+                                            $dueDate = \Carbon\Carbon::parse($cv->due_date);
+                                            $now = \Carbon\Carbon::now()->startOfDay();
+                                            $dueDateMidnight = $dueDate->copy()->startOfDay();
+                                            $isPast = $dueDateMidnight->isPast() && !$dueDateMidnight->isToday();
+                                            $diffDays = $now->diffInDays($dueDateMidnight, false);
+                                            
+                                            $statusLabel = 'Em Dia';
+                                            $badgeClass = 'badge-green'; // Default future
+                                            
+                                            if ($cv->status == 'applied') {
+                                                $statusLabel = 'Aplicada (' . \Carbon\Carbon::parse($cv->applied_date)->format('d/m/y') . ')';
+                                                $badgeClass = 'badge-green';
+                                            } else {
+                                                if ($isPast) {
+                                                    $statusLabel = 'Atrasada';
+                                                    $badgeClass = 'badge-red';
+                                                } elseif ($diffDays >= 0 && $diffDays <= 30) {
+                                                    $statusLabel = 'Vencendo ('.$diffDays.' dias)';
+                                                    $badgeClass = 'badge-yellow';
+                                                } else {
+                                                    $statusLabel = 'Aguardando Prazo';
+                                                    $badgeClass = '';
+                                                }
+                                            }
+                                        @endphp
+                                        <tr style="border-bottom: 1px solid #edf2f7;">
+                                            <td style="padding: 12px; font-weight: 500;">{{ $cv->vaccine->name }}</td>
+                                            <td style="padding: 12px; color: var(--text-muted);">{{ $cv->vaccine->dose }}</td>
+                                            <td style="padding: 12px;">{{ $dueDate->format('d/m/Y') }}</td>
+                                            <td style="padding: 12px;">
+                                                <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
+                                            </td>
+                                            <td style="padding: 12px; text-align: right;">
+                                                @if($cv->status != 'applied')
+                                                    <button type="button" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;" onclick="openVaccineModal({{ $cv->id }}, '{{ $cv->vaccine->name }} - {{ $cv->vaccine->dose }}')"><i class="fa-solid fa-syringe"></i> Aplicar</button>
+                                                @else
+                                                    <i class="fa-solid fa-check-circle" style="color: var(--primary-color);" title="Aplicada por: {{ $cv->professional }}"></i>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 24px; color: var(--text-main); font-size: 1.3rem;"><i class="fa-solid fa-clock-rotate-left"></i> Histórico de Consultas</h3>
 
                     @if($child->medical_records->isEmpty())
                         <div
@@ -344,7 +384,7 @@
                                                 {{ $record->doctor->name }}</div>
                                         </div>
                                         <div>
-                                            <a href="#" class="btn btn-primary"
+                                            <a href="{{ route('medical_records.show', $record->id) }}" class="btn btn-primary"
                                                 style="padding: 6px 12px; font-size: 0.85rem; text-decoration: none;"><i
                                                     class="fa-solid fa-file-medical"></i> Ver Completo</a>
                                         </div>
@@ -449,7 +489,51 @@
         </footer>
     </main>
 
+    <!-- Modal de Registro de Vacina -->
+    <div id="vaccineModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: var(--border-radius-lg); width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="margin-bottom: 20px; color: var(--text-main);"><i class="fa-solid fa-syringe" style="color: var(--primary-color);"></i> Registrar Aplicação</h3>
+            <p id="vaccineModalName" style="margin-bottom: 20px; font-weight: 600; color: var(--text-muted);"></p>
+            
+            <form id="vaccineForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="status" value="applied">
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-muted);">Data da Aplicação *</label>
+                    <input type="date" name="applied_date" value="{{ date('Y-m-d') }}" required style="width: 100%; padding: 10px; border: 1px solid #E2E8F0; border-radius: 6px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-muted);">Profissional Aplicador</label>
+                    <input type="text" name="professional" value="{{ Auth::user()->name }}" style="width: 100%; padding: 10px; border: 1px solid #E2E8F0; border-radius: 6px;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-muted);">Lote da Vacina (Opcional)</label>
+                    <input type="text" name="lot_number" placeholder="Ex: AB12345" style="width: 100%; padding: 10px; border: 1px solid #E2E8F0; border-radius: 6px;">
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeVaccineModal()" style="padding: 10px 20px; border-radius: 6px; border: 1px solid #E2E8F0; background: white; cursor: pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="border: none;">Salvar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function openVaccineModal(cvId, name) {
+            document.getElementById('vaccineModalName').innerText = name;
+            document.getElementById('vaccineForm').action = '/child-vaccines/' + cvId;
+            document.getElementById('vaccineModal').style.display = 'flex';
+        }
+
+        function closeVaccineModal() {
+            document.getElementById('vaccineModal').style.display = 'none';
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const chartData = @json($chartData);
             

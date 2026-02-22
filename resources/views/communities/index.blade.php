@@ -122,48 +122,7 @@
 </head>
 
 <body>
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
-            Curumin RES
-        </div>
-        <ul class="nav-links">
-            <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link">
-                    <i class="fa-solid fa-house"></i> Visão Geral
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('communities.index') }}" class="nav-link active">
-                    <i class="fa-solid fa-users"></i> Comunidades
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('children.index') }}" class="nav-link">
-                    <i class="fa-solid fa-child"></i> Crianças
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('medical_records.index') }}" class="nav-link">
-                    <i class="fa-solid fa-notes-medical"></i> Prontuários
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('profile') }}" class="nav-link">
-                    <i class="fa-solid fa-user-doctor"></i> Meu Perfil
-                </a>
-            </li>
-            <li class="nav-item" style="margin-top: auto;">
-                <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="nav-link"
-                        style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left; color: var(--accent-color);">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </aside>
+    @include('components.sidebar')
 
     <main class="main-wrapper">
         <header class="top-header">
@@ -257,10 +216,10 @@
                     <thead>
                         <tr>
                             <th>Nome da Comunidade</th>
-                            <th>População 1-5 anos</th>
-                            <th>População 5-10 anos</th>
-                            <th>População 10-18 anos</th>
-                            <th>Ação</th>
+                            <th style="text-align: center;">População 1-5 anos</th>
+                            <th style="text-align: center;">População 5-10 anos</th>
+                            <th style="text-align: center;">População 10-18 anos</th>
+                            <th style="text-align: right;">Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -280,20 +239,29 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td><span class="badge badge-green">{{ $community->population_1_to_5 }}</span></td>
-                                <td><span class="badge badge-yellow">{{ $community->population_5_to_10 }}</span></td>
-                                <td><span class="badge"
+                                <td style="text-align: center;"><span
+                                        class="badge badge-green">{{ $community->population_1_to_5 }}</span></td>
+                                <td style="text-align: center;"><span
+                                        class="badge badge-yellow">{{ $community->population_5_to_10 }}</span></td>
+                                <td style="text-align: center;"><span class="badge"
                                         style="background: rgba(66,153,225,0.15); color: #4299e1;">{{ $community->population_10_to_18 }}</span>
                                 </td>
-                                <td style="display: flex; gap: 8px;">
-                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;"
-                                        onclick="focusMap({{ $community->latitude }}, {{ $community->longitude }})">
-                                        <i class="fa-solid fa-map-location-dot"></i>
-                                    </button>
-                                    <a href="{{ route('communities.edit', $community->id) }}" class="btn"
-                                        style="padding: 6px 12px; font-size: 0.85rem; background: #EDF2F7; color: var(--text-main); text-decoration: none;">
-                                        <i class="fa-solid fa-pen"></i> Editar
-                                    </a>
+                                <td>
+                                    <div
+                                        style="display: flex; gap: 8px; flex-wrap: nowrap; white-space: nowrap; justify-content: flex-end;">
+                                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;"
+                                            onclick="focusMap({{ $community->latitude }}, {{ $community->longitude }})">
+                                            <i class="fa-solid fa-map-location-dot"></i>
+                                        </button>
+                                        <a href="{{ route('communities.show', $community->id) }}" class="btn"
+                                            style="padding: 6px 12px; font-size: 0.85rem; background: var(--primary-color); color: white; text-decoration: none;">
+                                            <i class="fa-solid fa-chart-pie"></i> Saúde
+                                        </a>
+                                        <a href="{{ route('communities.edit', $community->id) }}" class="btn"
+                                            style="padding: 6px 12px; font-size: 0.85rem; background: #EDF2F7; color: var(--text-main); text-decoration: none;">
+                                            <i class="fa-solid fa-pen"></i> Editar
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -313,12 +281,20 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
-        // Inicializa o Mapa centrado no Parque Indígena do Xingu (estimativa)
-        var map = L.map('map').setView([-12.2, -53.3], 9);
+        // Inicializa o Mapa
+        var map = L.map('map', {
+            maxBounds: [
+                [-90, -180],
+                [90, 180]
+            ],
+            maxBoundsViscosity: 1.0
+        });
 
-        // Adiciona a camada do mapa (OpenStreetMap base)
+        // Adiciona a camada do mapa (OpenStreetMap base) com noWrap e minZoom
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
+            minZoom: 2,
+            noWrap: true,
             attribution: '© OpenStreetMap Curumin RES'
         }).addTo(map);
 
@@ -333,21 +309,33 @@
 
         // Passando dados estruturados do PHP (Laravel) para o Javascript
         var communities = @json($communities);
+        var bounds = [];
 
         // Adicionando os marcadores na tela
         communities.forEach(function (community) {
-            var marker = L.marker([community.latitude, community.longitude], { icon: villageIcon }).addTo(map);
+            if (community.latitude && community.longitude) {
+                var latLng = [community.latitude, community.longitude];
+                var marker = L.marker(latLng, { icon: villageIcon }).addTo(map);
+                bounds.push(latLng);
 
-            var totalCount = community.population_1_to_5 + community.population_5_to_10 + community.population_10_to_18;
+                var totalCount = community.population_1_to_5 + community.population_5_to_10 + community.population_10_to_18;
 
-            marker.bindPopup(`
-                <div style="text-align: center; min-width: 150px;">
-                    <h4 style="margin: 0 0 4px; color: var(--text-main); font-family: Inter, sans-serif;">${community.name}</h4>
-                    ${community.address ? `<p style="margin: 0 0 8px; font-size: 12px; color: var(--text-muted);">${community.address}</p>` : ''}
-                    <p style="margin: 0; font-family: Inter, sans-serif; color: var(--text-muted); font-size: 14px;">Total de Jovens: <strong>${totalCount}</strong></p>
-                </div>
-            `);
+                marker.bindPopup(`
+                    <div style="text-align: center; min-width: 150px;">
+                        <h4 style="margin: 0 0 4px; color: var(--text-main); font-family: Inter, sans-serif;">${community.name}</h4>
+                        ${community.address ? `<p style="margin: 0 0 8px; font-size: 12px; color: var(--text-muted);">${community.address}</p>` : ''}
+                        <p style="margin: 0; font-family: Inter, sans-serif; color: var(--text-muted); font-size: 14px;">Total de Jovens: <strong>${totalCount}</strong></p>
+                    </div>
+                `);
+            }
         });
+
+        // Foca o mapa nos marcadores existentes, ou no Brasil inteiro por padrão
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        } else {
+            map.setView([-15.78, -47.92], 4); // Brasília center Default
+        }
 
         // Função rápida para focar o mapa quando clica na tabela
         function focusMap(lat, lng) {
