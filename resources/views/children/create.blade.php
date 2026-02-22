@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ isset($community) ? 'Editar' : 'Nova' }} Comunidade - Curumin RES</title>
+    <title>Cadastrar Paciente - Curumin RES</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
 
@@ -99,16 +99,10 @@
             Curumin RES
         </div>
         <ul class="nav-links">
-            <li class="nav-item"><a href="{{ route('dashboard') }}" class="nav-link"><i class="fa-solid fa-house"></i>
-                    Visão Geral</a></li>
-            <li class="nav-item"><a href="{{ route('communities.index') }}" class="nav-link active"><i
-                        class="fa-solid fa-users"></i> Comunidades</a></li>
-            <li class="nav-item"><a href="{{ route('children.index') }}" class="nav-link"><i
-                        class="fa-solid fa-child"></i> Crianças</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fa-solid fa-notes-medical"></i> Prontuários</a>
-            </li>
-            <li class="nav-item"><a href="{{ route('profile') }}" class="nav-link"><i
-                        class="fa-solid fa-user-doctor"></i> Meu Perfil</a></li>
+            <li class="nav-item"><a href="{{ route('dashboard') }}" class="nav-link"><i class="fa-solid fa-house"></i> Geral</a></li>
+            <li class="nav-item"><a href="{{ route('communities.index') }}" class="nav-link"><i class="fa-solid fa-users"></i> Comunidades</a></li>
+            <li class="nav-item"><a href="{{ route('children.index') }}" class="nav-link active"><i class="fa-solid fa-notes-medical"></i> Prontuários (Lista)</a></li>
+            <li class="nav-item"><a href="{{ route('profile') }}" class="nav-link"><i class="fa-solid fa-user-doctor"></i> Meu Perfil</a></li>
             <li class="nav-item" style="margin-top: auto;">
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
@@ -123,7 +117,7 @@
 
     <main class="main-wrapper">
         <header class="top-header">
-            <div class="header-title">{{ isset($community) ? 'Editar Comunidade' : 'Cadastrar Comunidade' }}</div>
+            <div class="header-title">Cadastrar Novo Paciente (Criança/Jovem)</div>
             <div class="user-profile">
                 <a href="{{ route('profile') }}"
                     style="text-decoration: none; display: flex; align-items: center; gap: 16px;">
@@ -150,77 +144,85 @@
                     </div>
                 @endif
 
-                <form
-                    action="{{ isset($community) ? route('communities.update', $community->id) : route('communities.store') }}"
-                    method="POST">
+                <form action="{{ route('children.store') }}" method="POST">
                     @csrf
-                    @if(isset($community))
-                        @method('PUT')
-                    @endif
 
-                    <div class="section-title"><i class="fa-solid fa-circle-info"></i> Informações Gerais da Aldeia
-                    </div>
+                    <div class="section-title"><i class="fa-solid fa-id-card"></i> Identificação do Paciente</div>
 
                     <div class="form-group">
-                        <label>Nome da Comunidade</label>
+                        <label>Nome Completo da Criança</label>
                         <input type="text" name="name" class="form-control"
-                            value="{{ old('name', $community->name ?? '') }}" required
-                            placeholder="Ex: Aldeia Yawalapiti">
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 24px;">
-                        <label>Endereço / Referência de Localização</label>
-                        <input type="text" name="address" class="form-control"
-                            value="{{ old('address', $community->address ?? '') }}"
-                            placeholder="Ex: Terra Indígena do Xingu, Polo Base Polo Leonardo Villas-Bôas">
-                        <small style="color: var(--text-muted); margin-top: 6px; display: block;"><i
-                                class="fa-solid fa-magic"></i> Se preencher o endereço, a Latitude e Longitude serão
-                            calculadas automaticamente!</small>
+                            value="{{ old('name') }}" required
+                            placeholder="Nome">
                     </div>
 
                     <div class="form-group-row">
                         <div class="form-group row-item">
-                            <label>Latitude (Opcional)</label>
-                            <input type="number" step="any" name="latitude" class="form-control"
-                                value="{{ old('latitude', $community->latitude ?? '') }}"
-                                placeholder="Ex: -12.1500 (Auto)">
+                            <label>Data de Nascimento</label>
+                            <input type="date" name="birth_date" class="form-control"
+                                value="{{ old('birth_date') }}" required>
                         </div>
                         <div class="form-group row-item">
-                            <label>Longitude (Opcional)</label>
-                            <input type="number" step="any" name="longitude" class="form-control"
-                                value="{{ old('longitude', $community->longitude ?? '') }}"
-                                placeholder="Ex: -53.4000 (Auto)">
+                            <label>Gênero</label>
+                            <select name="gender" class="form-control">
+                                <option value="">Não informado</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-row">
+                        <div class="form-group row-item">
+                            <label>Comunidade (Aldeia)</label>
+                            <select name="community_id" class="form-control" required>
+                                <option value="" disabled selected>-- Selecione --</option>
+                                @foreach($communities as $community)
+                                    <option value="{{ $community->id }}">{{ $community->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group row-item">
+                            <label>Etnia / Raça</label>
+                            <input type="text" name="ethnicity" class="form-control"
+                                value="{{ old('ethnicity') }}"
+                                placeholder="Ex: Guajajara">
                         </div>
                     </div>
 
-                    <div class="section-title" style="margin-top: 30px;"><i class="fa-solid fa-children"></i> Métricas
-                        Demográficas Infantis</div>
+                    <div class="section-title" style="margin-top: 30px;"><i class="fa-solid fa-address-book"></i> Dados Complementares</div>
 
                     <div class="form-group-row">
                         <div class="form-group row-item">
-                            <label>Crianças (1 a 5 anos)</label>
-                            <input type="number" name="population_1_to_5" class="form-control"
-                                value="{{ old('population_1_to_5', $community->population_1_to_5 ?? 0) }}" required
-                                min="0">
+                            <label>CNS / CPF</label>
+                            <input type="text" name="cns" class="form-control"
+                                value="{{ old('cns') }}">
                         </div>
                         <div class="form-group row-item">
-                            <label>Crianças (5 a 10 anos)</label>
-                            <input type="number" name="population_5_to_10" class="form-control"
-                                value="{{ old('population_5_to_10', $community->population_5_to_10 ?? 0) }}" required
-                                min="0">
+                            <label>Nome do Responsável</label>
+                            <input type="text" name="guardian_name" class="form-control"
+                                value="{{ old('guardian_name') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group row-item">
+                            <label>Contato (Opcional)</label>
+                            <input type="text" name="contact" class="form-control"
+                                value="{{ old('contact') }}">
                         </div>
                         <div class="form-group row-item">
-                            <label>Adolescentes (10 a 18 anos)</label>
-                            <input type="number" name="population_10_to_18" class="form-control"
-                                value="{{ old('population_10_to_18', $community->population_10_to_18 ?? 0) }}" required
-                                min="0">
+                            <label>Endereço na Aldeia / Localização</label>
+                            <input type="text" name="address" class="form-control"
+                                value="{{ old('address') }}">
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px;">
-                        <a href="{{ route('communities.index') }}" class="btn-cancel">Cancelar</a>
+                        <a href="{{ route('children.index') }}" class="btn-cancel">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-save" style="margin-right: 8px;"></i> Salvar Dados
+                            <i class="fa-solid fa-folder-plus" style="margin-right: 8px;"></i> Cadastrar e Abrir Prontuário
                         </button>
                     </div>
                 </form>

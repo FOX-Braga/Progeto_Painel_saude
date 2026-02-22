@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard - Curumin CRM</title>
+    <title>Dashboard - Curumin RES</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
 
@@ -29,7 +29,7 @@
             <div class="brand-icon">
                 <i class="fa-solid fa-leaf"></i>
             </div>
-            Curumin CRM
+            Curumin RES
         </div>
 
         <ul class="nav-links">
@@ -46,13 +46,13 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('children.index') }}" class="nav-link">
                     <i class="fa-solid fa-child"></i>
                     Crianças
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('medical_records.index') }}" class="nav-link">
                     <i class="fa-solid fa-notes-medical"></i>
                     Prontuários
                 </a>
@@ -179,7 +179,7 @@
 
         <footer
             style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
-            &copy; {{ date('Y') }} Curumin CRM - Saúde Indígena. Todos os direitos reservados.
+            &copy; {{ date('Y') }} Curumin RES - Saúde Indígena. Todos os direitos reservados.
         </footer>
     </main>
 </body>

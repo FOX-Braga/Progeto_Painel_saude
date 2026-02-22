@@ -10,6 +10,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\ChildController;
+use App\Http\Controllers\MedicalRecordController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/', function () {
@@ -21,6 +23,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');
     Route::get('/communities/{community}/edit', [CommunityController::class, 'edit'])->name('communities.edit');
     Route::put('/communities/{community}', [CommunityController::class, 'update'])->name('communities.update');
+
+    Route::get('/children', [ChildController::class, 'index'])->name('children.index');
+    Route::get('/children/create', [ChildController::class, 'create'])->name('children.create');
+    Route::post('/children', [ChildController::class, 'store'])->name('children.store');
+    Route::get('/children/{child}', [ChildController::class, 'show'])->name('children.show');
+
+    Route::resource('medical_records', MedicalRecordController::class);
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto');

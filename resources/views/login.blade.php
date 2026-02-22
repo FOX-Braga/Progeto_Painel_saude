@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Curumin CRM</title>
+    <title>Login - Curumin RES</title>
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
 
@@ -121,7 +121,7 @@
     <div class="login-container">
         <div class="login-header">
             <i class="fa-solid fa-staff-snake"></i>
-            <h2>Curumin CRM</h2>
+            <h2>Curumin RES</h2>
             <p>Acesso exclusivo para Médicos e Especialistas</p>
         </div>
 

@@ -4,9 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Comunidades - Curumin CRM</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
-    
+    <title>Comunidades - Curumin RES</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍃</text></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -124,7 +125,7 @@
     <aside class="sidebar">
         <div class="brand">
             <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
-            Curumin CRM
+            Curumin RES
         </div>
         <ul class="nav-links">
             <li class="nav-item">
@@ -135,6 +136,16 @@
             <li class="nav-item">
                 <a href="{{ route('communities.index') }}" class="nav-link active">
                     <i class="fa-solid fa-users"></i> Comunidades
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('children.index') }}" class="nav-link">
+                    <i class="fa-solid fa-child"></i> Crianças
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('medical_records.index') }}" class="nav-link">
+                    <i class="fa-solid fa-notes-medical"></i> Prontuários
                 </a>
             </li>
             <li class="nav-item">
@@ -175,28 +186,37 @@
 
         <section class="content-area">
             @if(session('success'))
-                <div class="animate-fade" style="background: rgba(72, 187, 120, 0.1); color: var(--primary-color); padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 500;">
+                <div class="animate-fade"
+                    style="background: rgba(72, 187, 120, 0.1); color: var(--primary-color); padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 500;">
                     <i class="fa-solid fa-check-circle"></i> {{ session('success') }}
                 </div>
             @endif
 
-            <div class="page-header animate-fade" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div class="page-header animate-fade"
+                style="display: flex; justify-content: space-between; align-items: flex-end;">
                 <div>
                     <h1>Painel Territorial e Demográfico</h1>
                     <p>Acompanhe a distribuição populacional infantil pelas regiões catalogadas.</p>
                 </div>
                 <div style="display: flex; gap: 16px;">
-                    <form action="{{ route('communities.index') }}" method="GET" style="display: flex; align-items: center; background: white; border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; max-width: 300px;">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar aldeia, endereço..." style="border: none; padding: 10px 16px; outline: none; flex: 1; min-width: 200px;">
-                        <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 10px 16px; cursor: pointer;">
+                    <form action="{{ route('communities.index') }}" method="GET"
+                        style="display: flex; align-items: center; background: white; border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; max-width: 300px;">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Buscar aldeia, endereço..."
+                            style="border: none; padding: 10px 16px; outline: none; flex: 1; min-width: 200px;">
+                        <button type="submit"
+                            style="background: var(--primary-color); color: white; border: none; padding: 10px 16px; cursor: pointer;">
                             <i class="fa-solid fa-search"></i>
                         </button>
                         @if(request('search'))
-                            <a href="{{ route('communities.index') }}" style="color: var(--text-muted); padding: 10px; text-decoration: none;"><i class="fa-solid fa-times"></i></a>
+                            <a href="{{ route('communities.index') }}"
+                                style="color: var(--text-muted); padding: 10px; text-decoration: none;"><i
+                                    class="fa-solid fa-times"></i></a>
                         @endif
                     </form>
 
-                    <a href="{{ route('communities.create') }}" class="btn btn-primary" style="text-decoration: none; display: flex; align-items: center;">
+                    <a href="{{ route('communities.create') }}" class="btn btn-primary"
+                        style="text-decoration: none; display: flex; align-items: center;">
                         <i class="fa-solid fa-plus"></i> <span style="margin-left:8px;">Nova Comunidade</span>
                     </a>
                 </div>
@@ -247,28 +267,34 @@
                         @foreach($communities as $community)
                             <tr>
                                 <td style="font-weight: 600;">
-                                <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                                    <i class="fa-solid fa-location-dot" style="color: var(--accent-color); margin-right: 8px;"></i> {{ $community->name }}
-                                </div>
-                                @if($community->address)
-                                    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 20px;">
-                                        <i class="fa-regular fa-map" style="margin-right: 4px;"></i> {{ $community->address }}
+                                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                        <i class="fa-solid fa-location-dot"
+                                            style="color: var(--accent-color); margin-right: 8px;"></i>
+                                        {{ $community->name }}
                                     </div>
-                                @endif
-                            </td>
-                            <td><span class="badge badge-green">{{ $community->population_1_to_5 }}</span></td>
+                                    @if($community->address)
+                                        <div
+                                            style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal; margin-left: 20px;">
+                                            <i class="fa-regular fa-map" style="margin-right: 4px;"></i>
+                                            {{ $community->address }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td><span class="badge badge-green">{{ $community->population_1_to_5 }}</span></td>
                                 <td><span class="badge badge-yellow">{{ $community->population_5_to_10 }}</span></td>
                                 <td><span class="badge"
                                         style="background: rgba(66,153,225,0.15); color: #4299e1;">{{ $community->population_10_to_18 }}</span>
                                 </td>
                                 <td style="display: flex; gap: 8px;">
-                                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="focusMap({{ $community->latitude }}, {{ $community->longitude }})">
-                                    <i class="fa-solid fa-map-location-dot"></i>
-                                </button>
-                                <a href="{{ route('communities.edit', $community->id) }}" class="btn" style="padding: 6px 12px; font-size: 0.85rem; background: #EDF2F7; color: var(--text-main); text-decoration: none;">
-                                    <i class="fa-solid fa-pen"></i> Editar
-                                </a>
-                            </td>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem;"
+                                        onclick="focusMap({{ $community->latitude }}, {{ $community->longitude }})">
+                                        <i class="fa-solid fa-map-location-dot"></i>
+                                    </button>
+                                    <a href="{{ route('communities.edit', $community->id) }}" class="btn"
+                                        style="padding: 6px 12px; font-size: 0.85rem; background: #EDF2F7; color: var(--text-main); text-decoration: none;">
+                                        <i class="fa-solid fa-pen"></i> Editar
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -277,8 +303,9 @@
 
         </section>
 
-        <footer style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
-            &copy; {{ date('Y') }} Curumin CRM - Saúde Indígena. Todos os direitos reservados.
+        <footer
+            style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto;">
+            &copy; {{ date('Y') }} Curumin RES - Saúde Indígena. Todos os direitos reservados.
         </footer>
     </main>
 
@@ -292,7 +319,7 @@
         // Adiciona a camada do mapa (OpenStreetMap base)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
-            attribution: '© OpenStreetMap Curumin CRM'
+            attribution: '© OpenStreetMap Curumin RES'
         }).addTo(map);
 
         // Ícone customizado

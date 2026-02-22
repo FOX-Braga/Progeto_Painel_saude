@@ -15,4 +15,9 @@ class Community extends Model
         'population_5_to_10',
         'population_10_to_18',
     ];
+
+    public function children()
+    {
+        return $this->hasMany(Child::class);
+    }
 }

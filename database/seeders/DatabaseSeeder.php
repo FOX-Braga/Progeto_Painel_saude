@@ -21,5 +21,10 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('natallya'),
             ]
         );
+
+        $this->call([
+            CommunitySeeder::class,
+            ChildSeeder::class,
+        ]);
     }
 }

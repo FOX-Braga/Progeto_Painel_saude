@@ -1,6 +1,6 @@
-# Curumin CRM 🌱
+# Curumin RES 🌱
 
-O **Curumin CRM** é um sistema moderno de gestão de relacionamento e registros de saúde focado especificamente no atendimento e acompanhamento de populações de aldeias e comunidades indígenas. 
+O **Curumin RES** é um sistema moderno de gestão de relacionamento e registros de saúde focado especificamente no atendimento e acompanhamento de populações de aldeias e comunidades indígenas. 
 
 Este projeto foi construído utilizando o framwework **Laravel** e banco de dados **PostgreSQL**, além de focar em uma experiência de usuário (UX) premium baseada em Glassmorphism, CSS nativo super polido, e mapas geolocalizados automáticos.
 
